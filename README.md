@@ -1,32 +1,57 @@
-# 辞了么 · Supabase 部署说明
+# 辞了么 · 部署说明
 
-## 1. 创建 Supabase 表
-1. 打开 Supabase Dashboard。
-2. 进入 SQL Editor，执行 [supabase-schema.sql](supabase-schema.sql) 中的内容。
-3. 复制 Project URL 与 anon public key。
+## Supabase
 
-## 2. 配置页面
-把 [辞了么.html](辞了么.html) 里这两段替换成真实值：
+1. 在 Supabase 新建项目。
+2. 打开 SQL Editor，执行 `supabase-schema.sql`。
+3. 复制 Project URL 和 publishable key。
+4. 打开 `辞了么.html`，替换：
 
-```html
+```js
 window.__SUPABASE_CONFIG__ = {
   url: "https://YOUR_PROJECT_REF.supabase.co",
-  anonKey: "YOUR_ANON_KEY"
+  anonKey: "YOUR_PUBLISHABLE_KEY"
 };
 ```
 
-## 3. 部署到 GitHub Pages
-1. 在 GitHub 新建仓库。
-2. 把当前文件夹提交并推送：
-   ```bash
-   git init
-   git add .
-   git commit -m "feat: add Supabase-backed static app"
-   git branch -M main
-   git remote add origin https://github.com/<你的用户名>/<仓库名>.git
-   git push -u origin main
-   ```
-3. 在仓库设置中开启 GitHub Pages，Source 选择 `main` 分支，根目录即可。
+Auth 登录使用邮箱 magic link。部署到 GitHub Pages 后，到 Supabase Authentication > URL Configuration，把 Site URL 改成你的 GitHub Pages 地址。
 
-## 4. 访问
-部署后可通过 GitHub Pages 地址访问页面。
+## 数据字段
+
+`game_sessions` 现在记录：
+
+```sql
+device_id
+email
+username
+leaderboard_name
+leaderboard_score
+leaderboard_visible
+total_vents
+total_booms
+best_combo
+quit_date
+last_login_at
+created_at
+updated_at
+```
+
+用户名规则：2-16 个字符，不允许空格和这些敏感符号：
+
+```text
+< > " ' ` ; \ / | { } [ ] ( ) = + * & ^ % $ # @ ! ?
+```
+
+排行榜可以按 `leaderboard_score desc` 排序，`leaderboard_name` 用来展示名字。`last_login_at` 是用户最近一次登录的完整时间戳，后续生成报告时可以用它统计“最晚登录是哪一天/几点”。
+
+## GitHub Pages
+
+```bash
+git add .
+git commit -m "feat: connect supabase auth"
+git branch -M main
+git remote add origin https://github.com/<你的用户名>/<仓库名>.git
+git push -u origin main
+```
+
+然后在 GitHub 仓库 Settings > Pages 中选择 `main` 分支和根目录。
