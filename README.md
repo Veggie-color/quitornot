@@ -14,7 +14,12 @@ window.__SUPABASE_CONFIG__ = {
 };
 ```
 
-Auth 登录使用邮箱 magic link。部署到 GitHub Pages 后，到 Supabase Authentication > URL Configuration，把 Site URL 改成你的 GitHub Pages 地址。
+Auth 登录使用邮箱 magic link。部署到 GitHub Pages 后，到 Supabase Authentication > URL Configuration：
+
+- Site URL 填 GitHub Pages 根地址，例如 `https://Veggie-color.github.io/quitornot/`
+- Redirect URLs 同时加入根地址和实际页面地址：
+  - `https://Veggie-color.github.io/quitornot/`
+  - `https://Veggie-color.github.io/quitornot/%E8%BE%9E%E4%BA%86%E4%B9%88.html`
 
 ## 数据字段
 

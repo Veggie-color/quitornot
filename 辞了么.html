@@ -1906,7 +1906,28 @@ function getSupabaseClient() {
   const cfg = window.__SUPABASE_CONFIG__ || {};
   const ready = cfg.url && cfg.anonKey && !cfg.url.includes("YOUR_PROJECT_REF") && !cfg.anonKey.includes("YOUR_ANON_KEY") && !cfg.anonKey.includes("YOUR_PUBLISHABLE_KEY");
   if (!ready || !window.supabase) return null;
-  return window.supabase.createClient(cfg.url, cfg.anonKey);
+  return window.supabase.createClient(cfg.url, cfg.anonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+    },
+  });
+}
+function getAuthRedirectUrl() {
+  const url = new URL(location.href);
+  if (url.pathname.endsWith("/index.html")) {
+    url.pathname = url.pathname.replace(/index\.html$/, "");
+  }
+  url.search = "";
+  url.hash = "";
+  return url.href;
+}
+function cleanAuthUrl() {
+  const url = new URL(location.href);
+  ["code", "token_hash", "type", "error", "error_code", "error_description"].forEach((key) => url.searchParams.delete(key));
+  url.hash = "";
+  history.replaceState({}, document.title, url.pathname + (url.search ? url.search : ""));
 }
 async function syncSessionToSupabase(client, store, user, options = {}) {
   if (!client) return;
@@ -2181,7 +2202,7 @@ function LoginModal({ client, user, prompt, username, onUsernameSave, onClose, o
     }
     const { error } = await client.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: location.href.split("#")[0] },
+      options: { emailRedirectTo: getAuthRedirectUrl() },
     });
     if (error) {
       setErr(true); setMsg(error.message || "发送失败,稍后再试。");
@@ -2546,29 +2567,37 @@ function App() {
   useEffect(() => {
     if (!supabaseClient) return;
     let alive = true;
-    supabaseClient.auth.getSession().then(({ data }) => {
+    const finishLogin = (user) => {
+      if (!user) return;
+      const name = getSavedUsername() || defaultUsername(user);
+      setUsername(name);
+      storeRef.current.username = name;
+      saveUsername(name);
+      saveStore(storeRef.current);
+      syncSessionToSupabase(supabaseClient, storeRef.current, user, { markLogin: true });
+    };
+    const initAuth = async () => {
+      const url = new URL(location.href);
+      const code = url.searchParams.get("code");
+      const hasAuthHash = location.hash.includes("access_token") || location.hash.includes("refresh_token");
+      if (code) {
+        try { await supabaseClient.auth.exchangeCodeForSession(code); } catch (e) {}
+        cleanAuthUrl();
+      } else if (hasAuthHash) {
+        setTimeout(cleanAuthUrl, 250);
+      }
+      const { data } = await supabaseClient.auth.getSession();
       if (!alive) return;
       const user = data.session ? data.session.user : null;
       setAuthUser(user);
-      if (user) {
-        const name = getSavedUsername() || defaultUsername(user);
-        setUsername(name);
-        storeRef.current.username = name;
-        saveUsername(name);
-        saveStore(storeRef.current);
-        syncSessionToSupabase(supabaseClient, storeRef.current, user, { markLogin: true });
-      }
-    });
+      finishLogin(user);
+    };
+    initAuth();
     const { data: sub } = supabaseClient.auth.onAuthStateChange((_event, session) => {
       const user = session ? session.user : null;
       setAuthUser(user);
       if (user) {
-        const name = getSavedUsername() || defaultUsername(user);
-        setUsername(name);
-        storeRef.current.username = name;
-        saveUsername(name);
-        saveStore(storeRef.current);
-        syncSessionToSupabase(supabaseClient, storeRef.current, user, { markLogin: true });
+        finishLogin(user);
         setAuthOpen(false);
         setAuthPrompt(false);
       }
