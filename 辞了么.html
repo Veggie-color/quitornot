@@ -362,13 +362,18 @@
     font-size: clamp(32px, 8.5vw, 44px); color: color-mix(in srgb, var(--text) 30%, transparent);
   }
   .arena-empty-sm {
-    margin-top: 2px; margin-left: clamp(72px, 19vw, 88px); font-size: 13px; color: var(--sub);
+    position: absolute; left: 50%; bottom: calc(100% + 12px);
+    transform: translateX(-50%);
+    font-size: 13px; color: var(--sub);
     letter-spacing: .04em; line-height: 1.05;
     display: inline-flex; flex-direction: column; align-items: center; gap: 1px;
     animation: pointDown 1.15s ease-in-out infinite;
   }
   .arena-arrow { margin-top: 3px; font-size: 16px; line-height: 1; }
-  @keyframes pointDown { 50% { transform: translateY(8px); } }
+  @keyframes pointDown {
+    0%,100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, 8px); }
+  }
   .toast {
     position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
     background: var(--danger); color: #fff; font-size: 12.5px; font-weight: 700;
@@ -384,7 +389,7 @@
     padding: 0 6px; margin-bottom: 4px;
     --btn: clamp(98px, 26vw, 126px);
   }
-  .ctrl { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 100%; }
+  .ctrl { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 100%; }
   .ctrl-label {
     font-family: var(--mono-font); font-size: 11px; letter-spacing: .18em;
     text-indent: .18em; color: var(--sub); font-weight: 700; white-space: nowrap;
@@ -663,7 +668,7 @@
   .rc-btn:active { transform: scale(.96); }
   .rc-hint { margin-top: 14px; font-size: 10.5px; color: var(--sub); letter-spacing: .04em; }
   .rc-qr {
-    position: absolute; top: 12px; right: 12px; width: 58px; padding: 4px;
+    width: clamp(54px, 16vw, 68px); padding: 4px; flex: 0 0 auto;
     border-radius: 10px; background: #fff; box-shadow: 0 8px 20px rgba(0,0,0,.28);
   }
   .rc-qr img { width: 100%; display: block; image-rendering: pixelated; }
@@ -671,11 +676,18 @@
     display: block; margin-top: 3px; color: #222; font-size: 7px;
     font-family: var(--mono-font); letter-spacing: 0; line-height: 1;
   }
-  @media (max-width: 380px), (max-height: 700px) {
-    .rc-qr {
-      position: static; width: 62px; margin: -8px auto 8px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.22);
-    }
+  .rc-scan-row {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-top: 12px; min-height: 66px;
+  }
+  .rc-scan-text {
+    font-family: var(--mono-font); font-size: clamp(10px, 3vw, 12px);
+    color: var(--sub); letter-spacing: .04em; white-space: nowrap;
+  }
+  @media (max-width: 340px), (max-height: 650px) {
+    .rc-scan-row { gap: 8px; min-height: 56px; }
+    .rc-qr { width: 52px; padding: 3px; }
+    .rc-qr span { display: none; }
   }
 
   /* ── 每日辞额 pill ─────────────────────────────────────────── */
@@ -1926,23 +1938,20 @@ async function genShareImage(stats, persona, colors) {
   x.fillStyle = "#fff"; x.font = "700 34px " + colors.body;
   x.textAlign = "center"; x.fillText("# " + persona.tag, cx, tagY + 47);
 
-  // QR code
-  const qrUrl = makeQrDataUrl(SITE_URL, 170, 2);
+  // footer
+  const qrUrl = makeQrDataUrl(SITE_URL, 150, 2);
+  const q = 108, qx = W - P - q - 8, qy = H - P - q - 6;
+  x.fillStyle = colors.sub; x.font = "400 26px " + colors.mono;
+  x.textAlign = qrUrl ? "right" : "center";
+  x.fillText("辞职纪念日 · " + stats.quitDate + "    |    扫码同款发泄 →", qrUrl ? qx - 22 : cx, qy + 62);
   if (qrUrl) {
     try {
       const qrImg = await loadImage(qrUrl);
-      const q = 146, qx = W - P - q - 12, qy = P + 10;
-      roundRect(x, qx - 12, qy - 12, q + 24, q + 42, 16);
+      roundRect(x, qx - 10, qy - 10, q + 20, q + 20, 16);
       x.fillStyle = "#fff"; x.fill();
       x.drawImage(qrImg, qx, qy, q, q);
-      x.fillStyle = "#222"; x.font = "700 18px " + colors.body;
-      x.textAlign = "center"; x.fillText("扫码来辞", qx + q / 2, qy + q + 25);
     } catch (e) {}
   }
-
-  // footer
-  x.fillStyle = colors.sub; x.font = "400 26px " + colors.mono;
-  x.fillText("辞职纪念日 · " + stats.quitDate + "    |    扫码同款发泄 →", cx, H - 150);
   return cv.toDataURL("image/png");
 }
 function roundRect(x, rx, ry, w, h, r) {
@@ -2223,12 +2232,7 @@ function ResultCard({ data, remaining, onReplay, onShare, onReallyQuit }) {
   return (
     <div className="result-wrap">
       <div className="result-card">
-        {qrUrl ? (
-          <div className="rc-qr">
-            <img src={qrUrl} alt="辞了么二维码" />
-            <span>扫码来辞</span>
-          </div>
-        ) : <div className="rc-seal">已<br />辞</div>}
+        {!qrUrl && <div className="rc-seal">已<br />辞</div>}
         <div className="rc-kicker">离职黄历 · {data.date}</div>
         <h2 className="rc-title">辞职大吉</h2>
         <div className="rc-idx">
@@ -2251,6 +2255,15 @@ function ResultCard({ data, remaining, onReplay, onShare, onReallyQuit }) {
         </div>
         <button className="rc-real-btn" onClick={onReallyQuit}>· 这次我，真辞了 ·</button>
         <div className="rc-hint">{noPlays ? "把这张卡分享给同病相怜的同事,换 3 次发泄" : "长按 / 截图保存,转发到工作群(误)"}</div>
+        {qrUrl && (
+          <div className="rc-scan-row">
+            <span className="rc-scan-text">扫码同款发泄 →</span>
+            <div className="rc-qr">
+              <img src={qrUrl} alt="辞了么二维码" />
+              <span>扫码来辞</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -3125,12 +3138,6 @@ function App() {
           {phase === "charge" && patience === 0 && (
             <div className="arena-empty">
               <span className="arena-empty-big">受够了?</span>
-              <span className="arena-empty-sm">
-                <span>使</span>
-                <span>劲</span>
-                <span>点</span>
-                <span className="arena-arrow">↓</span>
-              </span>
             </div>
           )}
           {toast && <div className="toast">{toast}</div>}
@@ -3144,6 +3151,14 @@ function App() {
             <div className="ctrl-label">辞 了</div>
           </div>
           <div className="ctrl">
+            {phase === "charge" && patience === 0 && (
+              <span className="arena-empty-sm">
+                <span>使</span>
+                <span>劲</span>
+                <span>点</span>
+                <span className="arena-arrow">↓</span>
+              </span>
+            )}
             <div className={"ctrl-mount mount-vent" + (phase === "charge" ? " invite" : "")}>
               <VentButton onVent={handleVent} dim={phase === "open" || phase === "boom"} />
             </div>
