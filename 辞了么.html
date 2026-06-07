@@ -331,27 +331,27 @@
     contain: layout paint; text-shadow: 0 1px 3px rgba(0,0,0,.28);
     transform: translate3d(var(--x), -14%, 0) rotate(var(--r0)) scale(.5);
     backface-visibility: hidden;
-    animation-name: fly; animation-timing-function: linear;
+    animation-name: fly; animation-timing-function: cubic-bezier(.36,0,.68,1);
     animation-fill-mode: forwards;
   }
   .stage[data-theme="mono"] .fly { text-shadow: 0 1px 0 rgba(0,0,0,.12); }
   @keyframes fly {
-    0%   { opacity: 0; transform: translate3d(var(--x), -14%, 0) rotate(var(--r0)) scale(.5); }
-    11%  { opacity: 1; transform: translate3d(var(--x), 0%, 0) rotate(var(--r0)) scale(1); }
-    82%  { opacity: 1; }
-    100% { opacity: 0; transform: translate3d(calc(var(--x) + var(--dx)), 118%, 0) rotate(var(--r1)) scale(1); }
+    0%   { opacity: 0; transform: translate3d(var(--x), -30%, 0) rotate(var(--r0)) scale(.5); }
+    10%  { opacity: 1; transform: translate3d(var(--x), -8%, 0) rotate(var(--r0)) scale(1); }
+    86%  { opacity: 1; }
+    100% { opacity: 0; transform: translate3d(calc(var(--x) + var(--dx)), 160%, 0) rotate(var(--r1)) scale(1); }
   }
   .arena-empty {
-    position: absolute; left: 0; right: 0; bottom: -8px;
+    position: absolute; left: 0; right: 0; top: 4px;
     display: flex; flex-direction: column;
-    align-items: flex-end; justify-content: flex-end; gap: 6px;
-    padding-right: 42px; pointer-events: none; opacity: .82;
+    align-items: center; justify-content: flex-start; gap: 6px;
+    pointer-events: none; opacity: .82;
   }
   .arena-empty-big {
     font-family: var(--display-font); font-weight: 900; white-space: nowrap;
     font-size: clamp(32px, 8.5vw, 44px); color: color-mix(in srgb, var(--text) 30%, transparent);
   }
-  .arena-empty-sm { font-size: 13px; color: var(--sub); letter-spacing: .06em; animation: pointDown 1.15s ease-in-out infinite; }
+  .arena-empty-sm { margin-left: -42px; font-size: 13px; color: var(--sub); letter-spacing: .06em; animation: pointDown 1.15s ease-in-out infinite; }
   @keyframes pointDown { 50% { transform: translate(6px, 8px); } }
   .toast {
     position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
@@ -646,6 +646,15 @@
   .rc-btn-solid { background: var(--danger); color: #fff; }
   .rc-btn:active { transform: scale(.96); }
   .rc-hint { margin-top: 14px; font-size: 10.5px; color: var(--sub); letter-spacing: .04em; }
+  .rc-qr {
+    position: absolute; top: 16px; right: 16px; width: 74px; padding: 6px;
+    border-radius: 10px; background: #fff; box-shadow: 0 8px 20px rgba(0,0,0,.28);
+  }
+  .rc-qr img { width: 100%; display: block; image-rendering: pixelated; }
+  .rc-qr span {
+    display: block; margin-top: 4px; color: #222; font-size: 8px;
+    font-family: var(--mono-font); letter-spacing: 0; line-height: 1;
+  }
 
   /* ── 每日辞额 pill ─────────────────────────────────────────── */
   .quota {
@@ -924,6 +933,7 @@
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
   <script>
@@ -1759,6 +1769,30 @@ const SKEY = "ciliao_v1";
 const DEVICE_KEY = "ciliao_device_id";
 const LOGIN_PROMPT_KEY = "ciliao_login_prompt_seen";
 const USERNAME_KEY = "ciliao_username";
+const SITE_URL = "https://www.quitornot.click/";
+
+function makeQrDataUrl(text = SITE_URL, size = 128, margin = 2) {
+  if (!window.qrcode) return "";
+  try {
+    const qr = window.qrcode(0, "M");
+    qr.addData(text);
+    qr.make();
+    const modules = qr.getModuleCount() + margin * 2;
+    const cell = Math.max(2, Math.floor(size / modules));
+    return qr.createDataURL(cell, margin);
+  } catch (e) {
+    return "";
+  }
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
 
 // 段位（按累计「辞意值」= 累计发泄次数）
 const RANKS = [
@@ -1869,6 +1903,20 @@ async function genShareImage(stats, persona, colors) {
   x.fillStyle = colors.danger; x.fill();
   x.fillStyle = "#fff"; x.font = "700 34px " + colors.body;
   x.textAlign = "center"; x.fillText("# " + persona.tag, cx, tagY + 47);
+
+  // QR code
+  const qrUrl = makeQrDataUrl(SITE_URL, 190, 2);
+  if (qrUrl) {
+    try {
+      const qrImg = await loadImage(qrUrl);
+      const q = 172, qx = W - P - q - 18, qy = P + 18;
+      roundRect(x, qx - 14, qy - 14, q + 28, q + 48, 18);
+      x.fillStyle = "#fff"; x.fill();
+      x.drawImage(qrImg, qx, qy, q, q);
+      x.fillStyle = "#222"; x.font = "700 22px " + colors.body;
+      x.textAlign = "center"; x.fillText("扫码来辞", qx + q / 2, qy + q + 28);
+    } catch (e) {}
+  }
 
   // footer
   x.fillStyle = colors.sub; x.font = "400 26px " + colors.mono;
@@ -2149,10 +2197,16 @@ function VentButton({ onVent, dim }) {
 function ResultCard({ data, remaining, onReplay, onShare, onReallyQuit }) {
   const stars = Math.round(data.index / 20);
   const noPlays = remaining <= 0;
+  const qrUrl = makeQrDataUrl(SITE_URL, 120, 2);
   return (
     <div className="result-wrap">
       <div className="result-card">
-        <div className="rc-seal">已<br />辞</div>
+        {qrUrl ? (
+          <div className="rc-qr">
+            <img src={qrUrl} alt="辞了么二维码" />
+            <span>扫码来辞</span>
+          </div>
+        ) : <div className="rc-seal">已<br />辞</div>}
         <div className="rc-kicker">离职黄历 · {data.date}</div>
         <h2 className="rc-title">辞职大吉</h2>
         <div className="rc-idx">
@@ -2783,7 +2837,7 @@ function App() {
 
   const spawnFalling = useCallback(() => {
     const layer = fallRef.current; if (!layer) return;
-    while (layer.childElementCount > 17) layer.removeChild(layer.firstChild);
+    while (layer.childElementCount > 19) layer.removeChild(layer.firstChild);
     const { accentList } = cfgRef.current.theme;
     const list = phraseList();
     const el = document.createElement("span");
@@ -2797,7 +2851,7 @@ function App() {
     el.style.setProperty("--dx", (Math.random() * 96 - 48).toFixed(0) + "px");
     el.style.setProperty("--r0", (Math.random() * 26 - 13).toFixed(0) + "deg");
     el.style.setProperty("--r1", (Math.random() * 46 - 23).toFixed(0) + "deg");
-    el.style.animationDuration = (1.7 + Math.random() * 0.75).toFixed(2) + "s";
+    el.style.animationDuration = (2.15 + Math.random() * 0.9).toFixed(2) + "s";
     el.addEventListener("animationend", () => el.remove());
     flyQueueRef.current.push(el);
     if (!flyFrameRef.current) {
