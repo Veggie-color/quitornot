@@ -341,15 +341,15 @@
     contain: layout paint; text-shadow: 0 1px 3px rgba(0,0,0,.28);
     transform: translate3d(var(--x), -14%, 0) rotate(var(--r0)) scale(.5);
     backface-visibility: hidden;
-    animation-name: fly; animation-timing-function: cubic-bezier(.36,0,.68,1);
+    animation-name: fly; animation-timing-function: cubic-bezier(.28,0,.62,1);
     animation-fill-mode: forwards;
   }
   .stage[data-theme="mono"] .fly { text-shadow: 0 1px 0 rgba(0,0,0,.12); }
   @keyframes fly {
     0%   { opacity: 0; transform: translate3d(var(--x), -30%, 0) rotate(var(--r0)) scale(.5); }
-    10%  { opacity: 1; transform: translate3d(var(--x), -8%, 0) rotate(var(--r0)) scale(1); }
-    86%  { opacity: 1; }
-    100% { opacity: 0; transform: translate3d(calc(var(--x) + var(--dx)), 190%, 0) rotate(var(--r1)) scale(1); }
+    8%   { opacity: 1; transform: translate3d(var(--x), -6%, 0) rotate(var(--r0)) scale(1); }
+    78%  { opacity: 1; }
+    100% { opacity: 0; transform: translate3d(calc(var(--x) + var(--dx)), 224%, 0) rotate(var(--r1)) scale(1); }
   }
   .arena-empty {
     position: absolute; left: 0; right: 0; top: 4px;
@@ -362,10 +362,12 @@
     font-size: clamp(32px, 8.5vw, 44px); color: color-mix(in srgb, var(--text) 30%, transparent);
   }
   .arena-empty-sm {
-    margin-top: 2px; margin-left: 86px; font-size: 13px; color: var(--sub);
-    letter-spacing: .06em; writing-mode: vertical-rl; text-orientation: upright;
-    display: inline-flex; align-items: center; animation: pointDown 1.15s ease-in-out infinite;
+    margin-top: 2px; margin-left: clamp(72px, 19vw, 88px); font-size: 13px; color: var(--sub);
+    letter-spacing: .04em; line-height: 1.05;
+    display: inline-flex; flex-direction: column; align-items: center; gap: 1px;
+    animation: pointDown 1.15s ease-in-out infinite;
   }
+  .arena-arrow { margin-top: 3px; font-size: 16px; line-height: 1; }
   @keyframes pointDown { 50% { transform: translateY(8px); } }
   .toast {
     position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
@@ -661,13 +663,19 @@
   .rc-btn:active { transform: scale(.96); }
   .rc-hint { margin-top: 14px; font-size: 10.5px; color: var(--sub); letter-spacing: .04em; }
   .rc-qr {
-    position: absolute; top: 16px; right: 16px; width: 74px; padding: 6px;
+    position: absolute; top: 12px; right: 12px; width: 58px; padding: 4px;
     border-radius: 10px; background: #fff; box-shadow: 0 8px 20px rgba(0,0,0,.28);
   }
   .rc-qr img { width: 100%; display: block; image-rendering: pixelated; }
   .rc-qr span {
-    display: block; margin-top: 4px; color: #222; font-size: 8px;
+    display: block; margin-top: 3px; color: #222; font-size: 7px;
     font-family: var(--mono-font); letter-spacing: 0; line-height: 1;
+  }
+  @media (max-width: 380px), (max-height: 700px) {
+    .rc-qr {
+      position: static; width: 62px; margin: -8px auto 8px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.22);
+    }
   }
 
   /* ── 每日辞额 pill ─────────────────────────────────────────── */
@@ -1919,16 +1927,16 @@ async function genShareImage(stats, persona, colors) {
   x.textAlign = "center"; x.fillText("# " + persona.tag, cx, tagY + 47);
 
   // QR code
-  const qrUrl = makeQrDataUrl(SITE_URL, 190, 2);
+  const qrUrl = makeQrDataUrl(SITE_URL, 170, 2);
   if (qrUrl) {
     try {
       const qrImg = await loadImage(qrUrl);
-      const q = 172, qx = W - P - q - 18, qy = P + 18;
-      roundRect(x, qx - 14, qy - 14, q + 28, q + 48, 18);
+      const q = 146, qx = W - P - q - 12, qy = P + 10;
+      roundRect(x, qx - 12, qy - 12, q + 24, q + 42, 16);
       x.fillStyle = "#fff"; x.fill();
       x.drawImage(qrImg, qx, qy, q, q);
-      x.fillStyle = "#222"; x.font = "700 22px " + colors.body;
-      x.textAlign = "center"; x.fillText("扫码来辞", qx + q / 2, qy + q + 28);
+      x.fillStyle = "#222"; x.font = "700 18px " + colors.body;
+      x.textAlign = "center"; x.fillText("扫码来辞", qx + q / 2, qy + q + 25);
     } catch (e) {}
   }
 
@@ -3117,7 +3125,12 @@ function App() {
           {phase === "charge" && patience === 0 && (
             <div className="arena-empty">
               <span className="arena-empty-big">受够了?</span>
-              <span className="arena-empty-sm">使劲点 ↘</span>
+              <span className="arena-empty-sm">
+                <span>使</span>
+                <span>劲</span>
+                <span>点</span>
+                <span className="arena-arrow">↓</span>
+              </span>
             </div>
           )}
           {toast && <div className="toast">{toast}</div>}
