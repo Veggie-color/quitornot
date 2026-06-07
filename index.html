@@ -1807,6 +1807,9 @@ const DEVICE_KEY = "ciliao_device_id";
 const LOGIN_PROMPT_KEY = "ciliao_login_prompt_seen";
 const USERNAME_KEY = "ciliao_username";
 const SITE_URL = "https://www.quitornot.click/";
+// One-line restore switch: set to true to bring back the email OTP login UI and auth session flow.
+// Keep false for the growth phase so Supabase stores data by local device_id without consuming Auth MAU.
+const ENABLE_EMAIL_LOGIN = false;
 
 function makeQrDataUrl(text = SITE_URL, size = 128, margin = 2) {
   if (!window.qrcode) return "";
@@ -2056,8 +2059,10 @@ async function syncSessionToSupabase(client, store, user, options = {}) {
   if (!client) return;
   const username = sanitizeUsername(store.username || getSavedUsername() || defaultUsername(user));
   const payload = {
-    device_id: user ? user.id : getDeviceId(),
-    email: user && user.email ? user.email : null,
+    // Anonymous-first sync: keep one cloud row per browser/device. To restore account-based sync,
+    // set ENABLE_EMAIL_LOGIN to true; logged-in users will then use their Supabase user id.
+    device_id: ENABLE_EMAIL_LOGIN && user ? user.id : getDeviceId(),
+    email: ENABLE_EMAIL_LOGIN && user && user.email ? user.email : null,
     username,
     leaderboard_name: username,
     leaderboard_score: store.totalVents || 0,
@@ -2066,7 +2071,7 @@ async function syncSessionToSupabase(client, store, user, options = {}) {
     total_booms: store.totalBooms || 0,
     best_combo: store.bestCombo || 0,
     quit_date: store.quitDate || null,
-    last_login_at: options.markLogin ? new Date().toISOString() : undefined,
+    last_login_at: ENABLE_EMAIL_LOGIN && options.markLogin ? new Date().toISOString() : undefined,
     updated_at: new Date().toISOString(),
   };
   Object.keys(payload).forEach((key) => payload[key] === undefined && delete payload[key]);
@@ -2775,7 +2780,7 @@ function App() {
   cfgRef.current = { theme, t };
 
   useEffect(() => {
-    if (!supabaseClient) return;
+    if (!ENABLE_EMAIL_LOGIN || !supabaseClient) return;
     let alive = true;
     const finishLogin = (user) => {
       if (!user) return;
@@ -2819,6 +2824,7 @@ function App() {
   }, [supabaseClient]);
 
   useEffect(() => {
+    if (!ENABLE_EMAIL_LOGIN) return;
     if (!result || authUser) return;
     let seen = false;
     try { seen = localStorage.getItem(LOGIN_PROMPT_KEY) === "1"; } catch (e) {}
@@ -3096,7 +3102,7 @@ function App() {
       data-theme={t.theme}
       ref={stageRef}
       style={themeVars}>
-      {view === "play" && !authOpen && !confirmQuit && (
+      {ENABLE_EMAIL_LOGIN && view === "play" && !authOpen && !confirmQuit && (
         <AuthButton user={authUser} onClick={() => { setAuthPrompt(false); setAuthOpen(true); }} />
       )}
       {view === "play" ? (
@@ -3187,7 +3193,7 @@ function App() {
 
       {confirmQuit && <ConfirmDialog onCancel={() => setConfirmQuit(false)} onConfirm={confirmReallyQuit} />}
 
-      {authOpen && (
+      {ENABLE_EMAIL_LOGIN && authOpen && (
         <LoginModal
           client={supabaseClient}
           user={authUser}
