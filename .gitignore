@@ -1,2 +1,13 @@
 .DS_Store
 .vscode/
+
+# Local-only AI/project context. Keep these off public GitHub.
+PROJECT_CONTEXT.md
+AGENTS.md
+
+# Local generated drafts/assets.
+share-cover(1).png
+share-cover-new.png
+share-cover-generated.png
+bbc4c9244ade6f6f336725e47e32491e.mp4
+marketing/
