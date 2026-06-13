@@ -285,11 +285,11 @@
     font-size: clamp(46px, 13vw, 64px); line-height: .9;
     letter-spacing: var(--title-spacing);
     color: var(--text);
-    text-shadow: 0 4px 0 color-mix(in srgb, var(--danger) 40%, transparent);
+    text-shadow: 0 4px 0 rgb(var(--danger-rgb) / .4);
   }
   .stage[data-theme="cyber"] .brand {
     color: var(--warn);
-    text-shadow: 2px 0 var(--danger), -2px 0 #2be0ff, 0 0 24px color-mix(in srgb, var(--warn) 50%, transparent);
+    text-shadow: 2px 0 var(--danger), -2px 0 #2be0ff, 0 0 24px rgb(var(--warn-rgb) / .5);
   }
   .stage[data-theme="mono"] .brand { text-shadow: 4px 4px 0 var(--danger); }
   .tag {
@@ -308,7 +308,7 @@
   .gauge-pct { color: var(--warn); font-weight: 700; font-size: 13px; }
   .gauge-track {
     height: 16px; border-radius: 999px;
-    background: color-mix(in srgb, var(--text) 8%, transparent);
+    background: rgb(var(--text-rgb) / .08);
     border: 1px solid var(--surface-line);
     overflow: hidden; position: relative;
     padding: 2px;
@@ -316,7 +316,7 @@
   .gauge-fill {
     height: 100%; border-radius: 999px;
     background: linear-gradient(90deg, var(--warn), var(--danger));
-    box-shadow: 0 0 14px color-mix(in srgb, var(--danger) 60%, transparent);
+    box-shadow: 0 0 14px rgb(var(--danger-rgb) / .6);
     transition: width .14s cubic-bezier(.34,1.4,.5,1);
     background-size: 14px 100%;
   }
@@ -363,7 +363,7 @@
   }
   .arena-empty-big {
     font-family: var(--display-font); font-weight: 900; white-space: nowrap;
-    font-size: clamp(32px, 8.5vw, 44px); color: color-mix(in srgb, var(--text) 30%, transparent);
+    font-size: clamp(32px, 8.5vw, 44px); color: rgb(var(--text-rgb) / .3);
   }
   .arena-empty-sm {
     position: absolute; left: 50%; bottom: calc(100% + 12px);
@@ -405,20 +405,22 @@
   .nuke-base {
     position: absolute; inset: 0; border-radius: 50%;
     background:
-      radial-gradient(60% 60% at 50% 32%, color-mix(in srgb, var(--surface) 60%, #000), #050506);
+      radial-gradient(60% 60% at 50% 32%, var(--surface-deep), #050506);
     box-shadow:
       inset 0 6px 14px rgba(0,0,0,.7),
       inset 0 -4px 10px rgba(255,255,255,.06),
       0 10px 26px rgba(0,0,0,.55);
     display: flex; align-items: center; justify-content: center;
-    border: 2px solid color-mix(in srgb, var(--warn) 35%, #000);
+    border: 2px solid rgb(var(--warn-rgb) / .35);
   }
   .nuke-fire {
     width: 74%; height: 74%; border-radius: 50%; border: none;
     cursor: pointer; position: relative; color: #fff;
     font-family: var(--display-font); font-weight: 900;
+    -webkit-appearance: none; appearance: none;
+    background-color: var(--danger);
     background:
-      radial-gradient(70% 70% at 50% 28%, color-mix(in srgb, var(--danger) 80%, #fff 18%), var(--danger) 46%, var(--danger-deep) 100%);
+      radial-gradient(70% 70% at 50% 28%, #ff7a65, var(--danger) 46%, var(--danger-deep) 100%);
     box-shadow:
       inset 0 -5px 12px rgba(0,0,0,.5), inset 0 5px 10px rgba(255,255,255,.35),
       0 6px 14px rgba(0,0,0,.5);
@@ -441,7 +443,7 @@
     box-shadow: inset 0 4px 14px rgba(0,0,0,.7);
   }
   @keyframes firePulse {
-    0%,100% { box-shadow: inset 0 -5px 12px rgba(0,0,0,.5), inset 0 5px 10px rgba(255,255,255,.35), 0 0 0 0 color-mix(in srgb, var(--danger) 70%, transparent); }
+    0%,100% { box-shadow: inset 0 -5px 12px rgba(0,0,0,.5), inset 0 5px 10px rgba(255,255,255,.35), 0 0 0 0 rgb(var(--danger-rgb) / .7); }
     50%     { box-shadow: inset 0 -5px 12px rgba(0,0,0,.5), inset 0 5px 10px rgba(255,255,255,.35), 0 0 0 14px transparent, 0 0 28px 4px var(--danger); }
   }
 
@@ -489,7 +491,7 @@
     border-color: #f6c915;
   }
   @keyframes coverGlow {
-    0%,100% { box-shadow: 0 10px 26px rgba(0,0,0,.6), inset 0 3px 8px rgba(255,255,255,.18), 0 0 0 0 color-mix(in srgb,var(--danger) 60%,transparent); }
+    0%,100% { box-shadow: 0 10px 26px rgba(0,0,0,.6), inset 0 3px 8px rgba(255,255,255,.18), 0 0 0 0 rgb(var(--danger-rgb) / .6); }
     50%     { box-shadow: 0 10px 26px rgba(0,0,0,.6), inset 0 3px 8px rgba(255,255,255,.18), 0 0 26px 4px var(--danger); }
   }
   .nuke.is-open .nuke-cover, .nuke.is-open .nuke-cover { transform: rotateX(-162deg) translateY(-3px); pointer-events: none; }
@@ -499,25 +501,20 @@
     width: var(--btn); height: var(--btn); border-radius: 50%; border: none;
     cursor: pointer; position: relative; color: #fff; overflow: visible;
     font-family: var(--display-font);
-    background: radial-gradient(72% 72% at 50% 26%, #ff7a65, #ef3e36 44%, #a51d18 100%);
-    background:
-      radial-gradient(72% 72% at 50% 26%, color-mix(in srgb, var(--danger) 78%, #fff 22%), var(--danger) 44%, var(--danger-deep) 100%);
+    -webkit-appearance: none; appearance: none;
+    background-color: var(--danger);
+    background: radial-gradient(72% 72% at 50% 26%, #ff7a65, var(--danger) 44%, var(--danger-deep) 100%);
     box-shadow: inset 0 -7px 16px rgba(0,0,0,.45), inset 0 6px 12px rgba(255,255,255,.4), 0 12px 26px rgba(239,62,54,.38);
-    box-shadow:
-      inset 0 -7px 16px rgba(0,0,0,.45), inset 0 6px 12px rgba(255,255,255,.4),
-      0 12px 26px color-mix(in srgb, var(--danger) 45%, rgba(0,0,0,.4));
     border: 3px solid #7e1511;
-    border: 3px solid color-mix(in srgb, var(--danger-deep) 80%, #000);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
     transition: transform .12s cubic-bezier(.34,1.5,.5,1);
   }
   .stage[data-theme="cyber"] .vent, .stage[data-theme="emo"] .vent {
+    background-color: var(--warn);
     background: radial-gradient(72% 72% at 50% 26%, #8dffbd, var(--warn) 44%, #178a48 100%);
-    background: radial-gradient(72% 72% at 50% 26%, color-mix(in srgb, var(--warn) 70%, #fff 18%), var(--warn) 44%, color-mix(in srgb,var(--warn) 50%, #000) 100%);
     border-color: #16783f;
-    color: #08120c; border-color: color-mix(in srgb, var(--warn) 60%, #000);
+    color: #08120c;
     box-shadow: inset 0 -7px 16px rgba(0,0,0,.35), inset 0 6px 12px rgba(255,255,255,.5), 0 12px 26px rgba(246,201,21,.35);
-    box-shadow: inset 0 -7px 16px rgba(0,0,0,.35), inset 0 6px 12px rgba(255,255,255,.5), 0 12px 26px color-mix(in srgb,var(--warn) 40%, rgba(0,0,0,.4));
   }
   .vent-txt { font-size: calc(var(--btn) * .185); line-height: 1.0; text-align: center; font-weight: 900; letter-spacing: .04em; position: relative; z-index: 3; }
   .vent-sub { font-family: var(--mono-font); font-size: 9px; letter-spacing: .1em; opacity: .92; font-weight: 700; margin-top: 2px; }
@@ -581,11 +578,11 @@
   .mount-vent.invite { box-shadow:
       inset 0 3px 4px rgba(255,255,255,.12), inset 0 -5px 10px rgba(0,0,0,.62),
       inset 0 0 0 1px rgba(0,0,0,.5), 0 6px 16px rgba(0,0,0,.5),
-      0 0 0 0 color-mix(in srgb, var(--danger) 60%, transparent);
+      0 0 0 0 rgb(var(--danger-rgb) / .6);
     animation: mountInvite 1.6s ease-in-out infinite; }
   @keyframes mountInvite {
     0%,100% { box-shadow: inset 0 3px 4px rgba(255,255,255,.12), inset 0 -5px 10px rgba(0,0,0,.62), inset 0 0 0 1px rgba(0,0,0,.5), 0 6px 16px rgba(0,0,0,.5), 0 0 0 0 transparent; }
-    50%     { box-shadow: inset 0 3px 4px rgba(255,255,255,.12), inset 0 -5px 10px rgba(0,0,0,.62), inset 0 0 0 1px rgba(0,0,0,.5), 0 6px 16px rgba(0,0,0,.5), 0 0 16px 3px color-mix(in srgb, var(--danger) 55%, transparent); }
+    50%     { box-shadow: inset 0 3px 4px rgba(255,255,255,.12), inset 0 -5px 10px rgba(0,0,0,.62), inset 0 0 0 1px rgba(0,0,0,.5), 0 6px 16px rgba(0,0,0,.5), 0 0 16px 3px rgb(var(--danger-rgb) / .55); }
   }
 
   /* ── confetti ───────────────────────────────────────────────── */
@@ -642,13 +639,13 @@
     font-family: var(--display-font); font-weight: 900; font-size: 20px; line-height: .92;
     display: flex; align-items: center; justify-content: center;
     transform: rotate(13deg); opacity: .92; letter-spacing: .02em;
-    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--danger) 40%, transparent);
+    box-shadow: inset 0 0 0 2px rgb(var(--danger-rgb) / .4);
   }
   .rc-kicker { font-family: var(--mono-font); font-size: 11px; letter-spacing: .2em; color: var(--sub); }
   .rc-title {
     font-family: var(--display-font); font-weight: 900;
     font-size: 46px; margin: 6px 0 16px; color: var(--danger);
-    text-shadow: 0 3px 0 color-mix(in srgb, var(--danger) 30%, transparent);
+    text-shadow: 0 3px 0 rgb(var(--danger-rgb) / .3);
   }
   .rc-idx {
     display: flex; align-items: center; justify-content: center; gap: 16px;
@@ -658,7 +655,7 @@
   .rc-idx-num small { font-size: 20px; }
   .rc-idx-lbl { text-align: left; font-size: 13px; color: var(--sub); }
   .rc-stars { font-size: 16px; color: var(--warn); letter-spacing: 2px; margin-top: 3px; }
-  .rc-stars-off { color: color-mix(in srgb, var(--text) 18%, transparent); }
+  .rc-stars-off { color: rgb(var(--text-rgb) / .18); }
   .rc-yiji { display: flex; gap: 10px; margin: 16px 0 4px; }
   .rc-yi, .rc-ji { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 12.5px; text-align: left; }
   .rc-yi b, .rc-ji b {
@@ -673,7 +670,7 @@
   .rc-stats b { color: var(--danger); }
   .rc-actions { display: flex; gap: 10px; margin-top: 18px; }
   .rc-btn { flex: 1; border: none; cursor: pointer; border-radius: 12px; padding: 12px 0; font-family: var(--body-font); font-weight: 700; font-size: 13.5px; }
-  .rc-btn-ghost { background: color-mix(in srgb, var(--text) 8%, transparent); color: var(--text); }
+  .rc-btn-ghost { background: rgb(var(--text-rgb) / .08); color: var(--text); }
   .rc-btn-solid { background: var(--danger); color: #fff; }
   .rc-btn:active { transform: scale(.96); }
   .rc-hint { margin-top: 14px; font-size: 10.5px; color: var(--sub); letter-spacing: .04em; }
@@ -766,32 +763,32 @@
   .arc-title {
     font-family: var(--display-font); font-weight: 900; margin: 6px 0 8px; white-space: nowrap;
     font-size: clamp(40px, 13vw, 60px); line-height: .95; color: var(--warn); letter-spacing: .04em;
-    text-shadow: 0 4px 0 color-mix(in srgb, var(--danger) 40%, transparent);
+    text-shadow: 0 4px 0 rgb(var(--danger-rgb) / .4);
   }
   .arc-tabs {
     display: flex; gap: 6px; padding: 4px; border-radius: 13px;
-    background: color-mix(in srgb, var(--text) 7%, transparent); border: 1px solid var(--surface-line);
+    background: rgb(var(--text-rgb) / .07); border: 1px solid var(--surface-line);
   }
   .arc-tab {
     flex: 1; text-align: center; padding: 10px 0; border: none; border-radius: 10px; cursor: pointer;
     background: transparent; color: var(--sub); font-family: var(--body-font); font-weight: 700; font-size: 13.5px;
     transition: background .15s, color .15s;
   }
-  .arc-tab.active { background: var(--danger); color: #fff; box-shadow: 0 4px 12px color-mix(in srgb, var(--danger) 40%, transparent); }
+  .arc-tab.active { background: var(--danger); color: #fff; box-shadow: 0 4px 12px rgb(var(--danger-rgb) / .4); }
   .arc-date { font-family: var(--mono-font); font-size: 12px; letter-spacing: .12em; color: var(--sub); }
   .arc-badge {
-    background: color-mix(in srgb, var(--text) 5%, transparent);
+    background: rgb(var(--text-rgb) / .05);
     border: 1px solid var(--surface-line); border-radius: 16px; padding: 16px;
   }
   .badge-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; margin-bottom: 10px; gap: 8px 10px; }
   .badge-rank { font-family: var(--display-font); font-weight: 900; font-size: 18px; color: var(--text); white-space: nowrap; overflow: visible; min-width: 0; }
   .badge-val { font-family: var(--mono-font); font-size: 12px; color: var(--danger); font-weight: 700; white-space: nowrap; }
-  .badge-prog { height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--text) 10%, transparent); overflow: hidden; }
+  .badge-prog { height: 8px; border-radius: 999px; background: rgb(var(--text-rgb) / .1); overflow: hidden; }
   .badge-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--warn), var(--danger)); transition: width .6s ease; }
   .badge-next { margin-top: 8px; font-size: 11px; color: var(--sub); }
   .arc-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .stat {
-    background: color-mix(in srgb, var(--text) 5%, transparent);
+    background: rgb(var(--text-rgb) / .05);
     border: 1px solid var(--surface-line); border-radius: 14px; padding: 14px; text-align: center;
   }
   .stat b { display: block; font-family: var(--display-font); font-weight: 900; font-size: 30px; color: var(--danger); line-height: 1; margin-bottom: 4px; }
@@ -806,19 +803,19 @@
   .cal-cell {
     aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center;
     font-family: var(--mono-font); font-size: 11px; color: var(--sub);
-    background: color-mix(in srgb, var(--text) 6%, transparent);
+    background: rgb(var(--text-rgb) / .06);
   }
   .cal-cell.empty { background: transparent; }
-  .cal-cell.on { color: #fff; font-weight: 700; border: 1px solid color-mix(in srgb, var(--danger) 50%, transparent); }
+  .cal-cell.on { color: #fff; font-weight: 700; border: 1px solid rgb(var(--danger-rgb) / .5); }
   .stage[data-theme="mono"] .cal-cell.on { color: #fff; }
   .board { display: flex; flex-direction: column; gap: 5px; }
   .board-row {
     display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px;
-    background: color-mix(in srgb, var(--text) 5%, transparent); font-size: 13px;
+    background: rgb(var(--text-rgb) / .05); font-size: 13px;
   }
   .board-row.me {
-    background: color-mix(in srgb, var(--danger) 16%, transparent);
-    border: 1px solid color-mix(in srgb, var(--danger) 50%, transparent);
+    background: rgb(var(--danger-rgb) / .16);
+    border: 1px solid rgb(var(--danger-rgb) / .5);
   }
   .board-rk { font-family: var(--display-font); font-weight: 900; width: 22px; text-align: center; color: var(--sub); }
   .board-row.me .board-rk { color: var(--danger); }
@@ -837,7 +834,7 @@
   .badge-top { position: relative; }
   .badge-ranks-btn {
     display: inline-flex; align-items: center; gap: 5px; cursor: pointer; flex: 0 0 auto; white-space: nowrap;
-    background: color-mix(in srgb, var(--text) 8%, transparent); border: 1px solid var(--surface-line);
+    background: rgb(var(--text-rgb) / .08); border: 1px solid var(--surface-line);
     color: var(--sub); border-radius: 999px; padding: 3px 8px 3px 6px;
     font-family: var(--body-font); font-size: 10px; letter-spacing: 0; font-weight: 700;
     justify-self: end; transition: color .15s, border-color .15s;
@@ -856,7 +853,7 @@
     position: absolute; top: 30px; right: 0; width: 38px; height: 38px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; cursor: pointer;
     background: var(--danger); color: #fff; border: none;
-    box-shadow: 0 6px 16px color-mix(in srgb, var(--danger) 45%, transparent);
+    box-shadow: 0 6px 16px rgb(var(--danger-rgb) / .45);
     transition: transform .12s;
   }
   .arc-share-ico:active { transform: scale(.9); }
@@ -884,7 +881,7 @@
   }
   .auth-btn {
     border: 1px solid var(--surface-line); border-radius: 999px;
-    background: color-mix(in srgb, var(--surface) 82%, transparent);
+    background: rgb(var(--surface-rgb) / .82);
     color: var(--text); cursor: pointer;
     font-family: var(--body-font); font-size: 12px; font-weight: 700;
     padding: 7px 12px; line-height: 1;
@@ -900,7 +897,7 @@
   .auth-form { display: flex; flex-direction: column; gap: 10px; }
   .auth-input {
     width: 100%; border: 1px solid var(--surface-line); border-radius: 12px;
-    background: color-mix(in srgb, var(--text) 7%, transparent);
+    background: rgb(var(--text-rgb) / .07);
     color: var(--text); padding: 12px 13px; font-family: var(--body-font);
     font-size: 14px; outline: none;
   }
@@ -911,18 +908,14 @@
   .auth-otp-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
   .auth-otp-row .auth-input { text-align: center; letter-spacing: .16em; font-family: var(--mono-font); font-weight: 700; }
   .auth-link-btn { border: none; background: transparent; color: var(--warn); font-family: var(--body-font); font-weight: 700; font-size: 12px; cursor: pointer; padding: 0; }
-  .auth-form > button.rc-btn-solid:has(+ .auth-submit),
-  .auth-form > button.rc-btn-solid:has(+ .auth-otp-row),
-  .auth-submit + button.rc-btn-solid { display: none; }
-
   /* 段位列表 */
   .rank-list { display: flex; flex-direction: column; gap: 7px; }
   .rank-item {
     display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 12px;
-    background: color-mix(in srgb, var(--text) 5%, transparent); border: 1px solid transparent; opacity: .5;
+    background: rgb(var(--text-rgb) / .05); border: 1px solid transparent; opacity: .5;
   }
   .rank-item.got { opacity: 1; }
-  .rank-item.cur { background: color-mix(in srgb, var(--danger) 14%, transparent); border-color: color-mix(in srgb, var(--danger) 50%, transparent); opacity: 1; }
+  .rank-item.cur { background: rgb(var(--danger-rgb) / .14); border-color: rgb(var(--danger-rgb) / .5); opacity: 1; }
   .ri-medal { color: var(--warn); flex: 0 0 auto; width: 24px; display: flex; align-items: center; justify-content: center; }
   .rank-item:not(.got) .ri-medal { color: var(--sub); opacity: .7; }
   .rank-item.cur .ri-medal { color: var(--danger); }
@@ -974,11 +967,11 @@
 <body>
   <div id="root"></div>
 
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="./vendor/react.development.js"></script>
+  <script src="./vendor/react-dom.development.js"></script>
+  <script src="./vendor/supabase.min.js"></script>
+  <script src="./vendor/qrcode.js"></script>
+  <script src="./vendor/babel.min.js"></script>
 
   <script>
 window.__SUPABASE_CONFIG__ = {
@@ -2035,6 +2028,21 @@ function getDeviceId() {
     return "dev_" + Date.now().toString(36);
   }
 }
+function hexToRgbTriplet(hex, fallback = "255 255 255") {
+  const m = String(hex || "").trim().match(/^#?([0-9a-f]{6})$/i);
+  if (!m) return fallback;
+  const n = parseInt(m[1], 16);
+  return ((n >> 16) & 255) + " " + ((n >> 8) & 255) + " " + (n & 255);
+}
+function mixHexWithBlack(hex, amount = 0.6, fallback = "#111") {
+  const m = String(hex || "").trim().match(/^#?([0-9a-f]{6})$/i);
+  if (!m) return fallback;
+  const n = parseInt(m[1], 16);
+  const r = Math.round(((n >> 16) & 255) * amount);
+  const g = Math.round(((n >> 8) & 255) * amount);
+  const b = Math.round((n & 255) * amount);
+  return "rgb(" + r + " " + g + " " + b + ")";
+}
 function getSupabaseClient() {
   const cfg = window.__SUPABASE_CONFIG__ || {};
   const ready = cfg.url && cfg.anonKey && !cfg.url.includes("YOUR_PROJECT_REF") && !cfg.anonKey.includes("YOUR_ANON_KEY") && !cfg.anonKey.includes("YOUR_PUBLISHABLE_KEY");
@@ -2232,7 +2240,8 @@ function VentButton({ onVent, dim }) {
     <button
       ref={ref}
       className={"vent" + (dim ? " vent-dim" : "")}
-      onPointerDown={(e) => { e.preventDefault(); press(); }}>
+      onPointerDown={(e) => { e.preventDefault(); press(); }}
+      onClick={() => { if (!window.PointerEvent) press(); }}>
       <span className="vent-spark"></span>
       <span className="vent-txt">我想<br />辞职</span>
     </button>
@@ -2486,7 +2495,6 @@ function LoginModal({ client, user, prompt, username, onUsernameSave, onClose, o
               <button className="rc-btn rc-btn-solid auth-submit" type="submit" disabled={busy}>
                 {busy ? "处理中..." : otpSent ? "确认登录" : "发送验证码"}
               </button>
-              <button className="rc-btn rc-btn-solid" type="submit">发送验证码</button>
             </form>
             <div className={"auth-msg" + (err ? " err" : "")}>{msg}</div>
             {otpSent && <button className="auth-link-btn" type="button" onClick={() => { setOtpSent(false); setOtp(""); setMsg(""); }}>换个邮箱</button>}
@@ -2625,7 +2633,7 @@ function Archive({ stats, onReset }) {
               c == null
                 ? <div key={i} className="cal-cell empty"></div>
                 : <div key={i} className={"cal-cell" + (c.plays > 0 ? " on" : "")}
-                    style={c.plays > 0 ? { background: "color-mix(in srgb, var(--danger) " + (28 + c.plays * 22) + "%, transparent)" } : undefined}>{c.day}</div>
+                    style={c.plays > 0 ? { background: "rgb(var(--danger-rgb) / " + ((28 + c.plays * 22) / 100).toFixed(2) + ")" } : undefined}>{c.day}</div>
             ))}
           </div>
         </React.Fragment>
@@ -2715,6 +2723,7 @@ function DetChrome({ detonate, press, phase, pct, onPlunger }) {
           type="button"
           className={"det-plunger" + (detonate ? " det-fire" : "") + (press ? " det-press" : "") + (ready ? " det-ready" : "")}
           onPointerDown={(e) => { e.preventDefault(); onPlunger && onPlunger(); }}
+          onClick={() => { if (!window.PointerEvent) onPlunger && onPlunger(); }}
           aria-label="推杆引爆">
           <i className="pl-flash"></i>
           <i className="pl-shaft"></i>
@@ -3094,6 +3103,11 @@ function App() {
     "--bg": theme.bg, "--bg-far": theme.bgFar, "--surface": theme.surface,
     "--surface-line": theme.surfaceLine, "--text": theme.text, "--sub": theme.sub,
     "--danger": theme.danger, "--danger-deep": theme.dangerDeep, "--warn": theme.warn,
+    "--danger-rgb": hexToRgbTriplet(theme.danger, "239 62 54"),
+    "--warn-rgb": hexToRgbTriplet(theme.warn, "246 201 21"),
+    "--text-rgb": hexToRgbTriplet(theme.text, "244 241 233"),
+    "--surface-rgb": hexToRgbTriplet(theme.surface, "21 21 26"),
+    "--surface-deep": mixHexWithBlack(theme.surface, 0.6, "#0d0d10"),
     "--display-font": theme.displayFont, "--body-font": theme.bodyFont,
     "--mono-font": theme.monoFont, "--title-spacing": theme.titleSpacing,
   };

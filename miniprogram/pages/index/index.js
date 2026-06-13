@@ -1,4 +1,4 @@
-const SITE_URL = "https://www.quitornot.click/";
+const SITE_URL = "https://www.quitornot.click/?v=20260613c";
 
 Page({
   data: {
