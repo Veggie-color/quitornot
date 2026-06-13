@@ -23,6 +23,7 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
+  html { color-scheme: only light; }
   body {
     background: #050506;
     font-family: 'Noto Sans SC', sans-serif;
@@ -498,18 +499,24 @@
     width: var(--btn); height: var(--btn); border-radius: 50%; border: none;
     cursor: pointer; position: relative; color: #fff; overflow: visible;
     font-family: var(--display-font);
+    background: radial-gradient(72% 72% at 50% 26%, #ff7a65, #ef3e36 44%, #a51d18 100%);
     background:
       radial-gradient(72% 72% at 50% 26%, color-mix(in srgb, var(--danger) 78%, #fff 22%), var(--danger) 44%, var(--danger-deep) 100%);
+    box-shadow: inset 0 -7px 16px rgba(0,0,0,.45), inset 0 6px 12px rgba(255,255,255,.4), 0 12px 26px rgba(239,62,54,.38);
     box-shadow:
       inset 0 -7px 16px rgba(0,0,0,.45), inset 0 6px 12px rgba(255,255,255,.4),
       0 12px 26px color-mix(in srgb, var(--danger) 45%, rgba(0,0,0,.4));
+    border: 3px solid #7e1511;
     border: 3px solid color-mix(in srgb, var(--danger-deep) 80%, #000);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
     transition: transform .12s cubic-bezier(.34,1.5,.5,1);
   }
   .stage[data-theme="cyber"] .vent, .stage[data-theme="emo"] .vent {
+    background: radial-gradient(72% 72% at 50% 26%, #8dffbd, var(--warn) 44%, #178a48 100%);
     background: radial-gradient(72% 72% at 50% 26%, color-mix(in srgb, var(--warn) 70%, #fff 18%), var(--warn) 44%, color-mix(in srgb,var(--warn) 50%, #000) 100%);
+    border-color: #16783f;
     color: #08120c; border-color: color-mix(in srgb, var(--warn) 60%, #000);
+    box-shadow: inset 0 -7px 16px rgba(0,0,0,.35), inset 0 6px 12px rgba(255,255,255,.5), 0 12px 26px rgba(246,201,21,.35);
     box-shadow: inset 0 -7px 16px rgba(0,0,0,.35), inset 0 6px 12px rgba(255,255,255,.5), 0 12px 26px color-mix(in srgb,var(--warn) 40%, rgba(0,0,0,.4));
   }
   .vent-txt { font-size: calc(var(--btn) * .185); line-height: 1.0; text-align: center; font-weight: 900; letter-spacing: .04em; position: relative; z-index: 3; }

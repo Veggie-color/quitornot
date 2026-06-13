@@ -1,5 +1,6 @@
 .DS_Store
 .vscode/
+miniprogram/project.private.config.json
 
 # Local-only AI/project context. Keep these off public GitHub.
 PROJECT_CONTEXT.md

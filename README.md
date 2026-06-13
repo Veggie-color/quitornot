@@ -40,6 +40,8 @@
 ├── index.html                         # 主入口文件
 ├── 辞了么.html                         # 同步副本，保持和 index.html 一致
 ├── supabase-schema.sql                # Supabase 数据表结构
+├── privacy.html                       # 隐私说明页，小程序审核/配置可用
+├── miniprogram/                       # 微信小程序 web-view 探索壳
 ├── share-cover.jpg                    # 当前用于社交分享的轻量封面图
 ├── share-cover.png                    # 较大的 PNG 封面图
 ├── 3a8b19800aedd2fbfa7318c57c173186.txt # 微信网站管理员认证文件
@@ -146,6 +148,37 @@ https://www.quitornot.click/share-cover.jpg
 - 微信是否仍在使用旧缓存
 - Open Graph 标签是否仍指向正确图片
 
+## 微信小程序 web-view 探索
+
+当前分支包含一个最小小程序壳，目录是：
+
+```text
+miniprogram/
+```
+
+它只做一件事：用小程序 `web-view` 打开正式网站：
+
+```text
+https://www.quitornot.click/
+```
+
+使用方式：
+
+1. 打开微信开发者工具。
+2. 选择「导入项目」。
+3. 项目目录选择本仓库里的 `miniprogram/`。
+4. 确认 `miniprogram/project.config.json` 里的 `appid` 是你的真实小程序 AppID。
+5. 在微信公众平台配置业务域名 `www.quitornot.click`。
+6. 如果平台要求校验文件，把校验文件放到仓库根目录，并确认线上可访问。
+
+注意事项：
+
+- `web-view` 需要业务域名通过微信后台校验，`quitornot.click` 和 `www.quitornot.click` 是两个不同域名，代码里用哪个就配置哪个。
+- 域名必须 HTTPS。
+- 如果微信要求备案，需要先处理 `quitornot.click` 的备案和主体资质。
+- `privacy.html` 可以作为隐私说明页面使用，正式上线前建议补充真实联系方式。
+- 先验证 web-view 路线，不建议一开始把主游戏拆成多个 H5 页面。
+
 ## 开发和修改建议
 
 修改页面时，建议：
@@ -192,4 +225,3 @@ git push
 
 它更像一个小小的情绪按钮：  
 上班受的气，在这里先还一点。
-
